@@ -335,6 +335,5 @@ public class PlayerMovement : MonoBehaviour
         moveVector = Matrix4x4.Rotate(transform.rotation) * moveVector;
         transform.position += Time.deltaTime * moveVector;
 
-
     }
 }
