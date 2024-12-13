@@ -29,6 +29,16 @@ public class PlayerMovement : MonoBehaviour
     /// </summary>
     public float AccelTime = 1;
 
+    /// <summary>
+    /// Speed at which the camera rotates
+    /// </summary> 
+    public float RotateSpeed = 1;
+
+    /// <summary>
+    /// The (absolute value of) maximum amount the player can rotate the camera in the y direction
+    /// </summary>
+    public float MaxXRotation = 90;
+
     // What time the player started accelerating along each axis 
     // Forward / back = y side to side = x
     private Vector2 _currAccelTime = Vector2.zero;
@@ -54,6 +64,12 @@ public class PlayerMovement : MonoBehaviour
 
     // Track if the player is currently jumping
     private bool _jumping = false;
+
+    // The current amount the camera is rotated in the x direction (In degrees)
+    private float _currXRot = 0;
+
+    // The current amount the camera is rotated in the y direction (In degrees)
+    private float _currYRot = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -328,11 +344,29 @@ public class PlayerMovement : MonoBehaviour
             _currJumpHeight = 0;
         }
 
+        // TODO: This currently rotates the camera it should be changed to the models head (Once a model is added)
+        // Rotate based on mouse
+        float rotYDelta = RotateSpeed * Input.GetAxis("Mouse X");
+        float rotXDelta = -1 * RotateSpeed * Input.GetAxis("Mouse Y");
+        if(Math.Abs(_currXRot + rotXDelta) < MaxXRotation){
+            _currXRot += rotXDelta;
+        }
+        else{
+            _currXRot = MaxXRotation * (_currXRot > 0 ? 1 : -1);
+        }
+        _currYRot = (_currYRot + rotYDelta) % 360;
+
+        // Apply rotation to camera
+        Quaternion newRot = Quaternion.Euler(new Vector3(_currXRot, _currYRot, 0));
+        Transform cam = transform.Find("Main Camera");
+        cam.rotation = newRot;
+
+
 
         // Move player by the current speed
         Vector3 moveVector = new Vector3(_currSpeed.x, frameJump, _currSpeed.y);
-        Debug.Log(moveVector);
-        moveVector = Matrix4x4.Rotate(transform.rotation) * moveVector;
+        // Debug.Log(moveVector);
+        moveVector = Matrix4x4.Rotate(Quaternion.Euler(0, cam.transform.eulerAngles.y, 0)) * moveVector;
         transform.position += Time.deltaTime * moveVector;
 
     }
