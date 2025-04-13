@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MapGeneration : MonoBehaviour
+
+
+public class MapGenerator
 {   
 
     /// <summary>
@@ -14,6 +16,16 @@ public class MapGeneration : MonoBehaviour
     /// The size to stop subdividing space 
     /// </summary>
     [SerializeField] private float roomSize = 1;
+
+    /// <summary>
+    /// How thick walls (and floors / ceilings) are
+    /// </summary>
+    [SerializeField] private float wallThickness = 0.25f;
+
+    /// <summary>
+    /// The height of a story / room
+    /// </summary>
+    [SerializeField] private float roomHeight = 5.0f;
 
     /// <summary>
     /// Represent a space created or used during the BSP algorithm.
@@ -33,6 +45,7 @@ public class MapGeneration : MonoBehaviour
         /// </summary>
         public Vector3 leftCorner;
     }   
+    
 
     /// <summary>
     /// A node in a tree used in binary space partitoning 
@@ -163,6 +176,22 @@ public class MapGeneration : MonoBehaviour
 
     private void BinarySpacePartition(){
 
+    }
+
+    /// <summary>
+    /// Take in a room represented by a space struct and spawn it in the Unity world
+    /// </summary>
+    private void InstantiateSpace(Space room){
+        GameObject wall1 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        wall1.transform.localScale = new Vector3(room.length, roomHeight, wallThickness);
+        wall1.transform.position = new Vector3(room.leftCorner.x + (room.length / 2), 
+            0, room.leftCorner.z);
+        
+        GameObject wall2 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        wall2.transform.localScale = new Vector3(room.length, roomHeight, wallThickness);
+        wall2.transform.position = new Vector3(room.leftCorner.x + (room.length / 2), 
+            0, room.leftCorner.z + room.width);
+        
     }
 
     // Start is called before the first frame update
